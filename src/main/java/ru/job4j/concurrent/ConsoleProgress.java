@@ -6,19 +6,15 @@ public class ConsoleProgress implements Runnable {
     public void run() {
         var process = new char[]{'-', '\\', '|', '/'};
         while (!Thread.currentThread().isInterrupted()) {
-            for (int i = 0; i <= 3; i++) {
+            for (Character character : process) {
                 try {
                     Thread.sleep(500);
-                    System.out.print("\r load: " + process[i]);
+                    System.out.print("\r load: " + character);
                 } catch (InterruptedException e) {
-                    try {
-                        Thread.currentThread().join();
-                    } catch (InterruptedException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                    e.printStackTrace();
                 }
-
             }
+
         }
     }
 
@@ -31,7 +27,6 @@ public class ConsoleProgress implements Runnable {
             e.printStackTrace();
         }
         progress.interrupt();
-        System.out.print("\rЗагрукза завершена");
     }
 }
 
