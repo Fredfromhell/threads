@@ -14,8 +14,7 @@ import java.net.URL;
 public class Wget implements Runnable {
     private final String url;
     private final int speed;
-
-    private final int MILLIS = 1000;
+    private final int millis = 1000;
 
     @Override
     public void run() {
@@ -28,8 +27,8 @@ public class Wget implements Runnable {
                 long finish = System.currentTimeMillis();
                 fileOutputStream.write(dataBuffer, 0, bytesRead);
                 long delta = finish - start;
-                if (delta < MILLIS) {
-                    Thread.sleep(MILLIS - delta);
+                if (delta < millis) {
+                    Thread.sleep(millis - delta);
                 }
                 start = System.currentTimeMillis();
             }
