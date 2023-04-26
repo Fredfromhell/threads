@@ -8,6 +8,8 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 @AllArgsConstructor
@@ -18,30 +20,48 @@ public class Wget implements Runnable {
 
     @Override
     public void run() {
+        File file = new File(url);
         try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-             FileOutputStream fileOutputStream = new FileOutputStream("pom_tmp.xml")) {
-            byte[] dataBuffer = new byte[speed];
+             FileOutputStream fileOutputStream = new FileOutputStream(file.getName())) {
+            byte[] dataBuffer = new byte[1024];
             int bytesRead;
+            int downloadData = 0;
             long start = System.currentTimeMillis();
-            while ((bytesRead = in.read(dataBuffer, 0, speed)) != -1) {
-                long finish = System.currentTimeMillis();
-                fileOutputStream.write(dataBuffer, 0, bytesRead);
-                long delta = finish - start;
-                if (delta < millis) {
-                    Thread.sleep(millis - delta);
+            while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                downloadData += bytesRead;
+                if (downloadData >= speed) {
+                    long finish = System.currentTimeMillis();
+                    long delta = finish - start;
+                    if (delta < millis) {
+                        Thread.sleep(millis - delta);
+                        start = System.currentTimeMillis();
+                        downloadData = 0;
+                    }
                 }
-                start = System.currentTimeMillis();
+                fileOutputStream.write(dataBuffer, 0, bytesRead);
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 
+    public static boolean urlValidator(String url) {
+        try {
+            new URL(url).toURI();
+            return true;
+        } catch (URISyntaxException exception) {
+            System.out.println("Указан некорректный URL");
+            return false;
+        } catch (MalformedURLException exception) {
+            System.out.println("Указан некорректный порт");
+            return false;
+        }
+    }
+
     public static void main(String[] args) throws InterruptedException {
-        UrlValidator urlValidator = new UrlValidator();
         String url = args[0];
-        if (!urlValidator.isValid(url)) {
-            System.out.println("Некорректный URL в параметре 1");
+        if (!urlValidator(url)) {
+            System.out.println("Ошибка параметра 1");
         }
         try {
             int speed = Integer.parseInt(args[1]);
