@@ -17,12 +17,12 @@ public class Wget implements Runnable {
     private final String url;
     private final int speed;
     private final int millis = 1000;
+    private final String fileName;
 
     @Override
     public void run() {
-        File file = new File(url);
         try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-             FileOutputStream fileOutputStream = new FileOutputStream(file.getName())) {
+             FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
             byte[] dataBuffer = new byte[1024];
             int bytesRead;
             int downloadData = 0;
@@ -34,9 +34,9 @@ public class Wget implements Runnable {
                     long delta = finish - start;
                     if (delta < millis) {
                         Thread.sleep(millis - delta);
-                        start = System.currentTimeMillis();
-                        downloadData = 0;
                     }
+                    start = System.currentTimeMillis();
+                    downloadData = 0;
                 }
                 fileOutputStream.write(dataBuffer, 0, bytesRead);
             }
@@ -45,33 +45,16 @@ public class Wget implements Runnable {
         }
     }
 
-    public static boolean urlValidator(String url) {
-        try {
-            new URL(url).toURI();
-            return true;
-        } catch (URISyntaxException exception) {
-            System.out.println("Указан некорректный URL");
-            return false;
-        } catch (MalformedURLException exception) {
-            System.out.println("Указан некорректный порт");
-            return false;
+    public static void main(String[] args) throws Exception {
+        if (args.length < 3) {
+            throw new Exception("Корректно задайте параметры приложения");
         }
-    }
-
-    public static void main(String[] args) throws InterruptedException {
         String url = args[0];
-        if (!urlValidator(url)) {
-            System.out.println("Ошибка параметра 1");
-        }
-        try {
-            int speed = Integer.parseInt(args[1]);
-            Thread wget = new Thread(new Wget(url, speed));
+        int speed = Integer.parseInt(args[1]);
+        String filename = args[2];
+            Thread wget = new Thread(new Wget(url, speed, filename));
             wget.start();
             wget.join();
-        } catch (NumberFormatException e) {
-            System.out.println("Введите скорость скачивания в параметр 2");
-        }
-
     }
 }
 
