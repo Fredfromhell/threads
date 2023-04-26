@@ -45,9 +45,9 @@ public class Wget implements Runnable {
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws InterruptedException {
         if (args.length < 3) {
-            throw new Exception("Корректно задайте параметры приложения");
+            throw new IllegalArgumentException("Корректно задайте параметры приложения");
         }
         String url = args[0];
         int speed = Integer.parseInt(args[1]);
