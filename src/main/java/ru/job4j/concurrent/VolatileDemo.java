@@ -32,7 +32,5 @@ public class VolatileDemo {
        two.start();
        one.start();
 
-        System.out.println("Test");
-
     }
 }
