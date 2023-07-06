@@ -33,6 +33,7 @@ public class VolatileDemo {
        one.start();
 
         System.out.println("Test");
+        System.out.println("test2");
 
     }
 }
